@@ -1,33 +1,75 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { useEffect, useState } from 'react';
+import { getCampeonato } from './services/api';
+import './App.css';
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [brasileirao, setBrasileirao] = useState([]);
+
+  async function fetchData() {
+    const response = await getCampeonato("tabela");
+    setBrasileirao(response);
+  }
+
+  console.log(brasileirao);
+
+  useEffect(() => {
+    if (brasileirao.length === 0) {
+      fetchData();
+    }
+  }, [brasileirao])
 
   return (
     <div className="App">
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://reactjs.org" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
+      <header>
+        <h1>BRASILEIRÃO 2023</h1>
+        <div className="row">
+          <label>TABELA DE CLASSIFICAÇÃO</label>
+        </div>
+      </header>
+      {brasileirao.length === 0 ? (
+        <div className="loading">CARREGANDO...</div>
+      ) : (
+        <>
+          <table>
+            <thead>
+              <tr>
+                <th />
+                <th />
+                <th className="txtLeft">Clube</th>
+                <th>Pts</th>
+                <th>Partidas</th>
+                <th>Vitórias</th>
+                <th>Empates</th>
+                <th>Derrotas</th>
+                <th>GM</th>
+                <th>GC</th>
+                <th>SG</th>
+                <th>AP (%)</th>
+              </tr>
+            </thead>
+            <tbody>
+              {brasileirao.map((time, index) => (
+                <tr>
+                  <td>
+                    <img src={time.time.escudo} alt={time.nome} width="30" height="30" />
+                  </td>
+                  <td>{time.posicao}</td>
+                  <td className="txtLeft">{time.time.nome_popular}</td>
+                  <td>{time.pontos}</td>
+                  <td>{time.jogos}</td>
+                  <td>{time.vitorias}</td>
+                  <td>{time.empates}</td>
+                  <td>{time.derrotas}</td>
+                  <td>{time.gols_pro}</td>
+                  <td>{time.gols_contra}</td>
+                  <td>{time.saldo_gols}</td>
+                  <td>{time.aproveitamento}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </>
+      )}
     </div>
   )
 }
